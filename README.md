@@ -7,8 +7,10 @@ This Operator is based on the `grafana-watcher` sidecar from [Prometheus Operato
 Currently it simply watches for new `ConfigMaps` and if they define the annotation `grafana.net/dashboards` as `"true"` it will `POST` each dashboard from the `ConfigMap` to Grafana.
 
 ## Usage
-`--run-outside-cluster # Uses ~/.kube/config rather than in cluster configuration`
-`--grafana-url # Sets the URL and authentication to use to access the Grafana API`
+```
+--run-outside-cluster # Uses ~/.kube/config rather than in cluster configuration
+--grafana-url # Sets the URL and authentication to use to access the Grafana API
+```
 
 ## Development
 
@@ -17,4 +19,4 @@ Currently it simply watches for new `ConfigMaps` and if they define the annotati
 2. `make build`
 3. `./bin/grafana-operator --run-outside-cluster 1 --grafana-url <GRAFANA URL>`
 
-Easiest way to install just Grafana to Kubernetes for playing with this: `helm install stable/grafana` then add the dashboards, `kubectl apply -f examples/grafana-dashboards.yaml`
+Easiest way to install just Grafana to Kubernetes for playing with helm: `helm install stable/grafana` then add the dashboards, `kubectl apply -f examples/grafana-dashboards.yaml`
