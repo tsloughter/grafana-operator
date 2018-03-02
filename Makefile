@@ -1,6 +1,7 @@
 OPERATOR_NAME  := grafana-operator
 VERSION := $(shell date +%Y%m%d%H%M)
-IMAGE := tsloughter/$(OPERATOR_NAME)
+ACCOUNT = ${ACCOUNT:-tsloughter}
+IMAGE := $(ACCOUNT)/$(OPERATOR_NAME)
 
 .PHONY: install_deps build build-image
 
