@@ -1,0 +1,12 @@
+grafana:
+  url: ""
+  watcher:
+    image: gavind/grafana-operator:201803021510
+    containerPort: 3000
+    resources: {}
+      # limits:
+      #     cpu: 200m
+      #     memory: 300Mi
+      #   requests:
+      #     cpu: 100m
+      #     memory: 50Mi

@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: grafana-operator
+    operator: grafana
+  name: grafana-operator
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        k8s-app: grafana-operator
+        operator: grafana
+    spec:
+      containers:
+      - args:
+        - '--grafana-url {{ .Values.grafana.url }}'
+        image: {{ .Values.grafana.watcher.image }}
+        imagePullPolicy: IfNotPresent
+        name: grafana-operator
+        ports:
+        - containerPort: {{ .Values.grafana.watcher.containerPort }}
+          name: http
+          protocol: TCP
+        resources:
+{{ toYaml .Values.grafana.watcher.resources | indent 11 }}  
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
