@@ -1,6 +1,7 @@
 OPERATOR_NAME  := grafana-operator
 VERSION := $(shell date +%Y%m%d%H%M)
-IMAGE := tsloughter/$(OPERATOR_NAME)
+ACCOUNT := tsloughter
+IMAGE := $(ACCOUNT)/$(OPERATOR_NAME)
 
 .PHONY: install_deps build build-image
 
@@ -17,3 +18,6 @@ bin/%/$(OPERATOR_NAME):
 
 build-image: bin/linux/$(OPERATOR_NAME)
 	docker build . -t $(IMAGE):$(VERSION)
+
+push-image: build-image
+	docker push $(IMAGE):$(VERSION)
