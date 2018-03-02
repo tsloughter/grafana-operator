@@ -18,3 +18,6 @@ bin/%/$(OPERATOR_NAME):
 
 build-image: bin/linux/$(OPERATOR_NAME)
 	docker build . -t $(IMAGE):$(VERSION)
+
+push-image: build-image
+	docker push $(IMAGE):$(VERSION)
