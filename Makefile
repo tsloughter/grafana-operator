@@ -10,7 +10,7 @@ install_deps:
 
 build:
 	rm -rf bin/%/$(OPERATOR_NAME)
-	go build -v -i -o bin/$(OPERATOR_NAME) ./cmd
+	CGO_ENABLED=0 go build -v -i -o bin/$(OPERATOR_NAME) ./cmd
 
 bin/%/$(OPERATOR_NAME):
 	rm -rf bin/%/$(OPERATOR_NAME)
