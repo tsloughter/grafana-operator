@@ -1,7 +1,7 @@
 grafana:
   url: ""
   watcher:
-    image: gavind/grafana-operator:201803021510
+    image: gavind/grafana-operator:201803051351
     containerPort: 3000
     resources: {}
       # limits:
