@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - args:
-        - '--grafana-url {{ .Values.grafana.url }}'
+        - "-grafana-url={{ .Values.grafana.url }}"
         image: {{ .Values.grafana.watcher.image }}
         imagePullPolicy: IfNotPresent
         name: grafana-operator
