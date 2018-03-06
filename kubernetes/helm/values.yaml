@@ -4,10 +4,10 @@ grafana:
     username: ""
     password: ""
   watcher:
-    image: gavind/grafana-operator:201803060955
+    image: gavind/grafana-operator:201803061404
     containerPort: 3000
     resources: {}
-    serviceAccount: test-gavin-deployer
+    serviceAccount: 
       # limits:
       #     cpu: 200m
       #     memory: 300Mi
