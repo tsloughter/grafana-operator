@@ -16,7 +16,7 @@ clean:
 	rm -rf bin/%/$(OPERATOR_NAME)
 
 bin/%/$(OPERATOR_NAME): clean
-	GOOS=$* GOARCH=amd64 go build -v -i -o bin/$*/$(OPERATOR_NAME) ./cmd
+	CGO_ENABLED=0 GOOS=$* GOARCH=amd64 go build -v -i -o bin/$*/$(OPERATOR_NAME) ./cmd
 
 build-image: bin/linux/$(OPERATOR_NAME)
 	docker build . -t $(IMAGE):$(VERSION)
