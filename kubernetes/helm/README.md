@@ -5,19 +5,21 @@ Support deploying `grafana-operator` to kubernetes via a [Deployment](https://ku
 Deploy
 ======
 ## Deploy Grafana
-Deploy the current stable grafana chart
+Deploy the current stable grafana chart -
 ```
 $ helm repo add stable https://kubernetes-charts.storage.googleapis.com
 $ helm install stable/grafana --namespace=<NAMESPACE> --set server.ingress.enabled=true,server.adminPassword=<GRAFANA_ADMIN_PASSWORD>,server.ingress.hosts=[<INGRESS_URL>]
 ```
 
 ## Deploy grafana-operator
-Now that a grafana instance has been deployed, the operator can be deployed with a reference to this instance-
+Now that a grafana instance has been deployed, the operator can be deployed with a reference to this instance. The operator must be deployed with a Service Account with access to list all ConfigMaps in the cluster. Create such a cluster role, and bind it to the service account via a [ClusterRoleBinding](https://kubernetes.io/docs/admin/authorization/rbac/#rolebinding-and-clusterrolebinding). Once this is done, deploy the operator -
+
 ``` bash
 $ helm upgrade --install grafana-operator -f kubernetes/helm/values.yaml kubernetes/helm/.  --namespace=<NAMESPACE> --set grafana.url="<GRAFANA_URL>" --set grafana.auth.username=<GRAFANA_USERNAME> --set grafana.auth.username=<GRAFANA_PASSWORD>
 ```
+
 ## Create Dashboard
-Create a dashboard, via a ConfigMap-
+Create a dashboard, via a ConfigMap -
 ```
 $ kubectl apply -f examples/grafana-dashboards.yaml
 ```
