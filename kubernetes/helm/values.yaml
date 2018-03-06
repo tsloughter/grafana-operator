@@ -1,9 +1,13 @@
 grafana:
   url: ""
+  auth:
+    username: ""
+    password: ""
   watcher:
-    image: gavind/grafana-operator:201803051351
+    image: gavind/grafana-operator:201803060955
     containerPort: 3000
     resources: {}
+    serviceAccount: test-gavin-deployer
       # limits:
       #     cpu: 200m
       #     memory: 300Mi
