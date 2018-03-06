@@ -4,7 +4,7 @@ grafana:
     username: ""
     password: ""
   watcher:
-    image: gavind/grafana-operator:201803061404
+    image: gavind/grafana-operator:201803061638
     containerPort: 3000
     resources: {}
     serviceAccount: 
