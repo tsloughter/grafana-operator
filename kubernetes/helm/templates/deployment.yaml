@@ -19,16 +19,30 @@ spec:
         operator: grafana
     spec:
       containers:
-      - args:
-        - "-grafana-url={{ .Values.grafana.url }}"
+      - name: grafana-operator
         image: {{ .Values.grafana.watcher.image }}
         imagePullPolicy: IfNotPresent
-        name: grafana-operator
+        args:
+        - "-grafana-url={{ .Values.grafana.url }}"
         ports:
         - containerPort: {{ .Values.grafana.watcher.containerPort }}
           name: http
           protocol: TCP
+        env:
+        - name: GRAFANA_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: grafana-auth
+              key: username
+        - name: GRAFANA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-auth
+              key: password
         resources:
 {{ toYaml .Values.grafana.watcher.resources | indent 11 }}  
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
+      {{- if .Values.grafana.watcher.serviceAccount }}
+      serviceAccountName: {{ .Values.grafana.watcher.serviceAccount }}
+      {{- end }}
