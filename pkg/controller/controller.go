@@ -48,10 +48,10 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.Dashboards
 	configmapInformer := cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-				return kclient.Core().ConfigMaps("default").List(options)
+				return kclient.Core().ConfigMaps(metav1.NamespaceAll).List(options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-				return kclient.Core().ConfigMaps("default").Watch(options)
+				return kclient.Core().ConfigMaps(metav1.NamespaceAll).Watch(options)
 			},
 		},
 		&v1.ConfigMap{},
