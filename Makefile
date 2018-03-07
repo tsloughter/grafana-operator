@@ -1,19 +1,25 @@
 OPERATOR_NAME  := grafana-operator
 VERSION := $(shell date +%Y%m%d%H%M)
-IMAGE := tsloughter/$(OPERATOR_NAME)
+ACCOUNT := tsloughter
+IMAGE := $(ACCOUNT)/$(OPERATOR_NAME)
 
-.PHONY: install_deps build build-image
+.PHONY: install_deps build build-image clean
 
 install_deps:
 	glide install
 
 build:
 	rm -rf bin/%/$(OPERATOR_NAME)
-	go build -v -i -o bin/$(OPERATOR_NAME) ./cmd
+	CGO_ENABLED=0 go build -v -i -o bin/$(OPERATOR_NAME) ./cmd
 
-bin/%/$(OPERATOR_NAME):
+clean:
 	rm -rf bin/%/$(OPERATOR_NAME)
-	GOOS=$* GOARCH=amd64 go build -v -i -o bin/$*/$(OPERATOR_NAME) ./cmd
+
+bin/%/$(OPERATOR_NAME): clean
+	CGO_ENABLED=0 GOOS=$* GOARCH=amd64 go build -v -i -o bin/$*/$(OPERATOR_NAME) ./cmd
 
 build-image: bin/linux/$(OPERATOR_NAME)
 	docker build . -t $(IMAGE):$(VERSION)
+
+push-image: build-image
+	docker push $(IMAGE):$(VERSION)

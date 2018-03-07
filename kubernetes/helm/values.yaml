@@ -1,0 +1,16 @@
+grafana:
+  url: ""
+  auth:
+    username: ""
+    password: ""
+  watcher:
+    image: gavind/grafana-operator:201803061638
+    containerPort: 3000
+    resources: {}
+    serviceAccount: 
+      # limits:
+      #     cpu: 200m
+      #     memory: 300Mi
+      #   requests:
+      #     cpu: 100m
+      #     memory: 50Mi
