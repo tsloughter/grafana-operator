@@ -132,6 +132,14 @@ func New(baseUrl *url.URL) *DashboardsClient {
 	}
 }
 
+func Newer(baseUrl *url.URL) *APIClient {
+	return &APIClient{
+		DashboardsClient{
+			BaseUrl:    baseUrl,
+			HTTPClient: http.DefaultClient,
+		}}
+}
+
 func (c *Clientset) Dashboards() DashboardsInterface {
 	return NewDashboardsClient(c.BaseUrl, c.HTTPClient)
 }

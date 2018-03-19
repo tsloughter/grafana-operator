@@ -22,7 +22,7 @@ import (
 type ConfigMapController struct {
 	configmapInformer cache.SharedIndexInformer
 	kclient           *kubernetes.Clientset
-	g                 *grafana.DashboardsClient
+	g                 *grafana.APIClient
 }
 
 // Run starts the process for listening for configmap changes and acting upon those changes.
@@ -41,7 +41,7 @@ func (c *ConfigMapController) Run(stopCh <-chan struct{}, wg *sync.WaitGroup) {
 }
 
 // NewConfigMapController creates a new NewConfigMapController
-func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.DashboardsClient) *ConfigMapController {
+func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.APIClient) *ConfigMapController {
 	configmapWatcher := &ConfigMapController{}
 
 	// Create informer for watching ConfigMaps
@@ -78,7 +78,7 @@ func (c *ConfigMapController) createDashboards(obj interface{}) {
 		for k, v := range configmapObj.Data {
 			// Check if config map has a datasource, then remove it from the cm
 			// and call c.g.CreateDatasource
-			err := c.g.Create(strings.NewReader(v))
+			err := c.g.DashboardsClient.Create(strings.NewReader(v))
 			if err != nil {
 				log.Println(fmt.Sprintf("Failed to create dashboards; %s", err.Error()))
 			} else {
