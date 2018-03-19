@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tsloughter/grafana-operator/pkg/grafana"
+	"github.com/gdmello/grafana-operator/pkg/grafana"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -75,6 +75,26 @@ func (c *ConfigMapController) createDashboards(obj interface{}) {
 	isGrafanaDashboards, _ := configmapObj.Annotations["grafana.net/dashboards"]
 
 	if b, err := strconv.ParseBool(isGrafanaDashboards); err == nil && b == true {
+		for k, v := range configmapObj.Data {
+			// Check if config map has a datasource, then remove it from the cm
+			// and call c.g.CreateDatasource
+			err := c.g.Create(strings.NewReader(v))
+			if err != nil {
+				log.Println(fmt.Sprintf("Failed to create dashboards; %s", err.Error()))
+			} else {
+				log.Println(fmt.Sprintf("Created dashboards: %s", k))
+			}
+		}
+	} else {
+		log.Println(fmt.Sprintf("Skipping configmap: %s", configmapObj.Name))
+	}
+}
+
+func (c *ConfigMapController) createDatasources(obj interface{}) {
+	configmapObj := obj.(*v1.ConfigMap)
+	isGrafanaDatasource, _ := configmapObj.Annotations["grafana.net/datasource"]
+
+	if b, err := strconv.ParseBool(isGrafanaDatasource); err == nil && b == true {
 		for k, v := range configmapObj.Data {
 			err := c.g.Create(strings.NewReader(v))
 			if err != nil {

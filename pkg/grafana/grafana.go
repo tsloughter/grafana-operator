@@ -30,6 +30,10 @@ type DashboardsInterface interface {
 	Delete(slug string) error
 }
 
+type APIClient struct {
+	DashboardsClient DashboardsClient
+}
+
 type DashboardsClient struct {
 	BaseUrl    *url.URL
 	HTTPClient *http.Client
@@ -45,6 +49,14 @@ func (d *GrafanaDashboard) Slug() string {
 	// The uri in the search result contains the slug.
 	// http://docs.grafana.org/v3.1/http_api/dashboard/#search-dashboards
 	return strings.TrimPrefix(d.Uri, "db/")
+}
+
+func NewAPIClient(baseUrl *url.URL, c *http.Client) APIClient {
+	return APIClient{
+		DashboardsClient{
+			BaseUrl:    baseUrl,
+			HTTPClient: c,
+		}}
 }
 
 func NewDashboardsClient(baseUrl *url.URL, c *http.Client) DashboardsInterface {

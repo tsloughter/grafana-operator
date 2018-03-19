@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -10,8 +11,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/tsloughter/grafana-operator/pkg/controller"
-	"github.com/tsloughter/grafana-operator/pkg/grafana"
+	"github.com/gdmello/grafana-operator/pkg/controller"
+	"github.com/gdmello/grafana-operator/pkg/grafana"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -37,6 +38,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Grafana URL could not be parsed: %s", *grafanaUrl)
 	}
+
+	log.Println(fmt.Sprintf("Grafana user %s and password %s", os.Getenv("GRAFANA_USER"), os.Getenv("GRAFANA_PASSWORD")))
 
 	if os.Getenv("GRAFANA_USER") != "" && os.Getenv("GRAFANA_PASSWORD") == "" {
 		gUrl.User = url.User(os.Getenv("GRAFANA_USER"))
