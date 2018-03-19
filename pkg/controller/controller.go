@@ -89,21 +89,3 @@ func (c *ConfigMapController) createDashboards(obj interface{}) {
 		log.Println(fmt.Sprintf("Skipping configmap: %s", configmapObj.Name))
 	}
 }
-
-func (c *ConfigMapController) createDatasources(obj interface{}) {
-	configmapObj := obj.(*v1.ConfigMap)
-	isGrafanaDatasource, _ := configmapObj.Annotations["grafana.net/datasource"]
-
-	if b, err := strconv.ParseBool(isGrafanaDatasource); err == nil && b == true {
-		for k, v := range configmapObj.Data {
-			err := c.g.Create(strings.NewReader(v))
-			if err != nil {
-				log.Println(fmt.Sprintf("Failed to create dashboards; %s", err.Error()))
-			} else {
-				log.Println(fmt.Sprintf("Created dashboards: %s", k))
-			}
-		}
-	} else {
-		log.Println(fmt.Sprintf("Skipping configmap: %s", configmapObj.Name))
-	}
-}
