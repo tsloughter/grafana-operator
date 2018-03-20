@@ -25,19 +25,29 @@ import (
 )
 
 type DashboardsInterface interface {
-	Search() ([]GrafanaDashboard, error)
-	Create(dashboardJson io.Reader) error
-	Delete(slug string) error
+	SearchDashboard() ([]GrafanaDashboard, error)
+	CreateDashboard(dashboardJson io.Reader) error
+	DeleteDashboard(slug string) error
+}
+
+type DatasourceInterface interface {
+	CreateDatasource(datasourceJson io.Reader) error
 }
 
 type APIClient struct {
-	DashboardsClient DashboardsClient
-}
-
-type DashboardsClient struct {
 	BaseUrl    *url.URL
 	HTTPClient *http.Client
 }
+
+// type DashboardsClient struct {
+// 	BaseUrl    *url.URL
+// 	HTTPClient *http.Client
+// }
+
+// type DatasourceClient struct {
+// 	BaseUrl    *url.URL
+// 	HTTPClient *http.Client
+// }
 
 type GrafanaDashboard struct {
 	Id    int    `json:"id"`
@@ -51,22 +61,27 @@ func (d *GrafanaDashboard) Slug() string {
 	return strings.TrimPrefix(d.Uri, "db/")
 }
 
-func NewAPIClient(baseUrl *url.URL, c *http.Client) APIClient {
-	return APIClient{
-		DashboardsClient{
-			BaseUrl:    baseUrl,
-			HTTPClient: c,
-		}}
-}
+// func NewAPIClient(baseUrl *url.URL, c *http.Client) APIClient {
+// 	return APIClient{
+// 		// DatasourceClient{
+// 		BaseUrl:    baseUrl,
+// 		HTTPClient: c,
+// 		// },
+// 		// DashboardsClient{
+// 		// 	BaseUrl:    baseUrl,
+// 		// 	HTTPClient: c,
+// 		// }
+// 	}
+// }
 
-func NewDashboardsClient(baseUrl *url.URL, c *http.Client) DashboardsInterface {
-	return &DashboardsClient{
-		BaseUrl:    baseUrl,
+func NewAPIClient(baseURL *url.URL, c *http.Client) DashboardsInterface {
+	return &APIClient{
+		BaseUrl:    baseURL,
 		HTTPClient: c,
 	}
 }
 
-func (c *DashboardsClient) Search() ([]GrafanaDashboard, error) {
+func (c *APIClient) SearchDashboard() ([]GrafanaDashboard, error) {
 	searchUrl := makeUrl(c.BaseUrl, "/api/search")
 	resp, err := c.HTTPClient.Get(searchUrl)
 	if err != nil {
@@ -83,7 +98,7 @@ func (c *DashboardsClient) Search() ([]GrafanaDashboard, error) {
 	return searchResult, nil
 }
 
-func (c *DashboardsClient) Delete(slug string) error {
+func (c *APIClient) DeleteDashboard(slug string) error {
 	deleteUrl := makeUrl(c.BaseUrl, "/api/dashboards/db/"+slug)
 	req, err := http.NewRequest("DELETE", deleteUrl, nil)
 	if err != nil {
@@ -93,15 +108,22 @@ func (c *DashboardsClient) Delete(slug string) error {
 	return doRequest(c.HTTPClient, req)
 }
 
-func (c *DashboardsClient) Create(dashboardJson io.Reader) error {
-	importDashboardUrl := makeUrl(c.BaseUrl, "/api/dashboards/import")
-	req, err := http.NewRequest("POST", importDashboardUrl, dashboardJson)
+func (c *APIClient) CreateDashboard(dashboardJSON io.Reader) error {
+	return doPost(makeUrl(c.BaseUrl, "/api/dashboards/import"), dashboardJSON, c.HTTPClient)
+}
+
+func (c *APIClient) CreateDatasource(datasourceJSON io.Reader) error {
+	return doPost(makeUrl(c.BaseUrl, "/api/datasources"), datasourceJSON, c.HTTPClient)
+}
+
+func doPost(url string, dataJSON io.Reader, c *http.Client) error {
+	req, err := http.NewRequest("POST", url, dataJSON)
 	if err != nil {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
 
-	return doRequest(c.HTTPClient, req)
+	return doRequest(c, req)
 }
 
 func doRequest(c *http.Client, req *http.Request) error {
@@ -116,37 +138,42 @@ func doRequest(c *http.Client, req *http.Request) error {
 	return nil
 }
 
-type Interface interface {
-	Dashboards() DashboardsInterface
-}
+// type Interface interface {
+// 	Dashboards() DashboardsInterface
+// }
 
 type Clientset struct {
 	BaseUrl    *url.URL
 	HTTPClient *http.Client
 }
 
-func New(baseUrl *url.URL) *DashboardsClient {
-	return &DashboardsClient{
+// func New(baseUrl *url.URL) *DashboardsClient {
+// 	return &DashboardsClient{
+// 		BaseUrl:    baseUrl,
+// 		HTTPClient: http.DefaultClient,
+// 	}
+// }
+
+func New(baseUrl *url.URL) *APIClient {
+	return &APIClient{
+		// DatasourceClient{
 		BaseUrl:    baseUrl,
 		HTTPClient: http.DefaultClient,
+		// },
+		// DashboardsClient{
+		// 	BaseUrl:    baseUrl,
+		// 	HTTPClient: http.DefaultClient,
+		// }
 	}
 }
 
-func Newer(baseUrl *url.URL) *APIClient {
-	return &APIClient{
-		DashboardsClient{
-			BaseUrl:    baseUrl,
-			HTTPClient: http.DefaultClient,
-		}}
-}
+// func (c *Clientset) Dashboards() DashboardsInterface {
+// 	return NewDashboardsClient(c.BaseUrl, c.HTTPClient)
+// }
 
-func (c *Clientset) Dashboards() DashboardsInterface {
-	return NewDashboardsClient(c.BaseUrl, c.HTTPClient)
-}
-
-func makeUrl(baseUrl *url.URL, endpoint string) string {
+func makeUrl(baseURL *url.URL, endpoint string) string {
 	result := &url.URL{}
-	*result = *baseUrl
+	*result = *baseURL
 
 	result.Path = path.Join(result.Path, endpoint)
 
