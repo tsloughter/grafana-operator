@@ -46,7 +46,7 @@ func main() {
 		gUrl.User = url.UserPassword(os.Getenv("GRAFANA_USER"), os.Getenv("GRAFANA_PASSWORD"))
 	}
 
-	g := grafana.Newer(gUrl)
+	g := grafana.New(gUrl)
 
 	sigs := make(chan os.Signal, 1) // Create channel to receive OS signals
 	stop := make(chan struct{})     // Create channel to receive stop signal
