@@ -76,13 +76,19 @@ func (c *ConfigMapController) createDashboards(obj interface{}) {
 
 	if b, err := strconv.ParseBool(isGrafanaDashboards); err == nil && b == true {
 		for k, v := range configmapObj.Data {
-			// Check if config map has a datasource, then remove it from the cm
-			// and call c.g.CreateDatasource
-			err := c.g.DashboardsClient.Create(strings.NewReader(v))
-			if err != nil {
-				log.Println(fmt.Sprintf("Failed to create dashboards; %s", err.Error()))
+			log.Println(fmt.Sprintf("key: %s; value: %s", k, v))
+			if strings.Contains(k, "datasource.json") {
+				log.Println(fmt.Sprintf("Creating datasource : %s; value: %s", k, v))
+				err = c.g.CreateDatasource(strings.NewReader(v))
 			} else {
-				log.Println(fmt.Sprintf("Created dashboards: %s", k))
+				log.Println(fmt.Sprintf("Creating dashboard : %s;", k))
+				err = c.g.CreateDashboard(strings.NewReader(v))
+			}
+
+			if err != nil {
+				log.Println(fmt.Sprintf("Failed to create %s", k))
+			} else {
+				log.Println(fmt.Sprintf("Created %s", k))
 			}
 		}
 	} else {
