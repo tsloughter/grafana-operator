@@ -39,16 +39,6 @@ type APIClient struct {
 	HTTPClient *http.Client
 }
 
-// type DashboardsClient struct {
-// 	BaseUrl    *url.URL
-// 	HTTPClient *http.Client
-// }
-
-// type DatasourceClient struct {
-// 	BaseUrl    *url.URL
-// 	HTTPClient *http.Client
-// }
-
 type GrafanaDashboard struct {
 	Id    int    `json:"id"`
 	Title string `json:"title"`
@@ -60,19 +50,6 @@ func (d *GrafanaDashboard) Slug() string {
 	// http://docs.grafana.org/v3.1/http_api/dashboard/#search-dashboards
 	return strings.TrimPrefix(d.Uri, "db/")
 }
-
-// func NewAPIClient(baseUrl *url.URL, c *http.Client) APIClient {
-// 	return APIClient{
-// 		// DatasourceClient{
-// 		BaseUrl:    baseUrl,
-// 		HTTPClient: c,
-// 		// },
-// 		// DashboardsClient{
-// 		// 	BaseUrl:    baseUrl,
-// 		// 	HTTPClient: c,
-// 		// }
-// 	}
-// }
 
 func NewAPIClient(baseURL *url.URL, c *http.Client) DashboardsInterface {
 	return &APIClient{
@@ -138,38 +115,17 @@ func doRequest(c *http.Client, req *http.Request) error {
 	return nil
 }
 
-// type Interface interface {
-// 	Dashboards() DashboardsInterface
-// }
-
 type Clientset struct {
 	BaseUrl    *url.URL
 	HTTPClient *http.Client
 }
 
-// func New(baseUrl *url.URL) *DashboardsClient {
-// 	return &DashboardsClient{
-// 		BaseUrl:    baseUrl,
-// 		HTTPClient: http.DefaultClient,
-// 	}
-// }
-
 func New(baseUrl *url.URL) *APIClient {
 	return &APIClient{
-		// DatasourceClient{
 		BaseUrl:    baseUrl,
 		HTTPClient: http.DefaultClient,
-		// },
-		// DashboardsClient{
-		// 	BaseUrl:    baseUrl,
-		// 	HTTPClient: http.DefaultClient,
-		// }
 	}
 }
-
-// func (c *Clientset) Dashboards() DashboardsInterface {
-// 	return NewDashboardsClient(c.BaseUrl, c.HTTPClient)
-// }
 
 func makeUrl(baseURL *url.URL, endpoint string) string {
 	result := &url.URL{}
