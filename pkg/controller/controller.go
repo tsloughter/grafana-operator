@@ -78,7 +78,7 @@ func (c *ConfigMapController) CreateDashboards(obj interface{}) {
 		for k, v := range configmapObj.Data {
 			log.Println(fmt.Sprintf("key: %s; value: %s", k, v))
 			if strings.Contains(k, "datasource.json") {
-				log.Println(fmt.Sprintf("Creating datasource : %s; value: %s", k, v))
+				log.Println(fmt.Sprintf("Creating datasource : %s;", k))
 				err = c.g.CreateDatasource(strings.NewReader(v))
 			} else {
 				log.Println(fmt.Sprintf("Creating dashboard : %s;", k))
