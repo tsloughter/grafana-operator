@@ -9,9 +9,9 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/gdmello/grafana-operator/pkg/controller"
-	"github.com/gdmello/grafana-operator/pkg/grafana"
-	"github.com/gdmello/grafana-operator/pkg/kubernetes"
+	"github.com/tsloughter/grafana-operator/pkg/controller"
+	"github.com/tsloughter/grafana-operator/pkg/grafana"
+	"github.com/tsloughter/grafana-operator/pkg/kubernetes"
 )
 
 var (
