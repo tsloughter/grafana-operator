@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gdmello/grafana-operator/pkg/controller"
-	"github.com/gdmello/grafana-operator/pkg/grafana"
-	"github.com/gdmello/grafana-operator/pkg/kubernetes"
+	"github.com/tsloughter/grafana-operator/pkg/controller"
+	"github.com/tsloughter/grafana-operator/pkg/grafana"
+	"github.com/gtsloughterdmello/grafana-operator/pkg/kubernetes"
 	"github.com/stretchr/testify/mock"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
