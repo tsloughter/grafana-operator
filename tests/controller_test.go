@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/tsloughter/grafana-operator/pkg/controller"
 	"github.com/tsloughter/grafana-operator/pkg/grafana"
-	"github.com/gtsloughterdmello/grafana-operator/pkg/kubernetes"
-	"github.com/stretchr/testify/mock"
+	"github.com/tsloughter/grafana-operator/pkg/kubernetes"
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
