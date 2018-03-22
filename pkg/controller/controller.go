@@ -22,7 +22,7 @@ import (
 type ConfigMapController struct {
 	configmapInformer cache.SharedIndexInformer
 	kclient           *kubernetes.Clientset
-	g                 *grafana.APIClient
+	g                 grafana.APIInterface
 }
 
 // Run starts the process for listening for configmap changes and acting upon those changes.
@@ -41,7 +41,7 @@ func (c *ConfigMapController) Run(stopCh <-chan struct{}, wg *sync.WaitGroup) {
 }
 
 // NewConfigMapController creates a new NewConfigMapController
-func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.APIClient) *ConfigMapController {
+func NewConfigMapController(kclient *kubernetes.Clientset, g grafana.APIInterface) *ConfigMapController {
 	configmapWatcher := &ConfigMapController{}
 
 	// Create informer for watching ConfigMaps
@@ -60,7 +60,7 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.APIClient)
 	)
 
 	configmapInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: configmapWatcher.createDashboards,
+		AddFunc: configmapWatcher.CreateDashboards,
 	})
 
 	configmapWatcher.kclient = kclient
@@ -70,7 +70,7 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.APIClient)
 	return configmapWatcher
 }
 
-func (c *ConfigMapController) createDashboards(obj interface{}) {
+func (c *ConfigMapController) CreateDashboards(obj interface{}) {
 	configmapObj := obj.(*v1.ConfigMap)
 	isGrafanaDashboards, _ := configmapObj.Annotations["grafana.net/dashboards"]
 

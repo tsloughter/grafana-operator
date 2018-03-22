@@ -24,13 +24,10 @@ import (
 	"strings"
 )
 
-type DashboardsInterface interface {
+type APIInterface interface {
 	SearchDashboard() ([]GrafanaDashboard, error)
 	CreateDashboard(dashboardJson io.Reader) error
 	DeleteDashboard(slug string) error
-}
-
-type DatasourceInterface interface {
 	CreateDatasource(datasourceJson io.Reader) error
 }
 
@@ -51,7 +48,7 @@ func (d *GrafanaDashboard) Slug() string {
 	return strings.TrimPrefix(d.Uri, "db/")
 }
 
-func NewAPIClient(baseURL *url.URL, c *http.Client) DashboardsInterface {
+func NewAPIClient(baseURL *url.URL, c *http.Client) APIInterface {
 	return &APIClient{
 		BaseUrl:    baseURL,
 		HTTPClient: c,
