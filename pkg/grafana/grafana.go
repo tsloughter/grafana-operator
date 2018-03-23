@@ -125,8 +125,7 @@ func New(baseUrl *url.URL) *APIClient {
 }
 
 func makeUrl(baseURL *url.URL, endpoint string) string {
-	result := &url.URL{}
-	*result = *baseURL
+	result := *baseURL
 
 	result.Path = path.Join(result.Path, endpoint)
 
