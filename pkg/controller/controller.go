@@ -72,12 +72,15 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g grafana.APIInterfac
 
 func (c *ConfigMapController) CreateDashboards(obj interface{}) {
 	configmapObj := obj.(*v1.ConfigMap)
-	isGrafanaDashboards, _ := configmapObj.Annotations["grafana.net/dashboards"]
+	dh, _ := configmapObj.Annotations["grafana.net/dashboards"]
+	ds, _ := configmapObj.Annotations["grafana.net/datasource"]
+	isGrafanaDashboards, _ := strconv.ParseBool(dh)
+	isGrafanaDatasource, _ := strconv.ParseBool(ds)
 
-	if b, err := strconv.ParseBool(isGrafanaDashboards); err == nil && b == true {
+	if isGrafanaDashboards || isGrafanaDatasource {
+		var err error
 		for k, v := range configmapObj.Data {
-			log.Println(fmt.Sprintf("key: %s; value: %s", k, v))
-			if strings.Contains(k, "datasource.json") {
+			if isGrafanaDatasource {
 				log.Println(fmt.Sprintf("Creating datasource : %s;", k))
 				err = c.g.CreateDatasource(strings.NewReader(v))
 			} else {

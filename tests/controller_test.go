@@ -61,7 +61,7 @@ func TestCreateDashboards(t *testing.T) {
 	apiClient := new(APIClientMock)
 	apiClient.On("CreateDashboard", strings.NewReader(dashboardJson)).Return(nil)
 	c := newConfigMapController(apiClient)
-	cm := grafanaConfigMap("my-dashboard.json", dashboardJson, true)
+	cm := grafanaConfigMap(dashboardJson, true, true)
 	c.CreateDashboards(cm)
 	apiClient.AssertExpectations(t)
 }
@@ -70,7 +70,7 @@ func TestCreateDatasource(t *testing.T) {
 	apiClient := new(APIClientMock)
 	apiClient.On("CreateDatasource", strings.NewReader(datasourceJson)).Return(nil)
 	c := newConfigMapController(apiClient)
-	cm := grafanaConfigMap("my-datasource.json", datasourceJson, true)
+	cm := grafanaConfigMap(datasourceJson, false, true)
 	c.CreateDashboards(cm)
 	apiClient.AssertExpectations(t)
 }
@@ -78,22 +78,28 @@ func TestCreateDatasource(t *testing.T) {
 func TestCreateDatasourceAnnotationFalse(t *testing.T) {
 	apiClient := new(APIClientMock)
 	c := newConfigMapController(apiClient)
-	cm := grafanaConfigMap("my-datasource.json", datasourceJson, false)
+	cm := grafanaConfigMap(datasourceJson, false, false)
 	c.CreateDashboards(cm)
 	apiClient.AssertNotCalled(t, "CreateDatasource")
 }
 
-func grafanaConfigMap(name, value string, enable bool) *v1.ConfigMap {
+func grafanaConfigMap(value string, isDashboard, enable bool) *v1.ConfigMap {
 	return &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "some-config-map",
-			Annotations: map[string]string{
-				"grafana.net/dashboards": strconv.FormatBool(enable),
-			},
+			Annotations:  annotate(isDashboard, enable),
 		},
 		Data: map[string]string{
-			name: value,
+			"some_file.json": value,
 		},
+	}
+}
+
+func annotate(isDashboard, enable bool) map[string]string {
+	if isDashboard {
+		return map[string]string{"grafana.net/dashboards": strconv.FormatBool(enable)}
+	} else {
+		return map[string]string{"grafana.net/datasource": strconv.FormatBool(enable)}
 	}
 }
 
