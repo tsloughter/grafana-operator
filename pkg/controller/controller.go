@@ -22,7 +22,7 @@ import (
 type ConfigMapController struct {
 	configmapInformer cache.SharedIndexInformer
 	kclient           *kubernetes.Clientset
-	g                 *grafana.DashboardsClient
+	g                 grafana.APIInterface
 }
 
 // Run starts the process for listening for configmap changes and acting upon those changes.
@@ -41,7 +41,7 @@ func (c *ConfigMapController) Run(stopCh <-chan struct{}, wg *sync.WaitGroup) {
 }
 
 // NewConfigMapController creates a new NewConfigMapController
-func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.DashboardsClient) *ConfigMapController {
+func NewConfigMapController(kclient *kubernetes.Clientset, g grafana.APIInterface) *ConfigMapController {
 	configmapWatcher := &ConfigMapController{}
 
 	// Create informer for watching ConfigMaps
@@ -60,7 +60,7 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.Dashboards
 	)
 
 	configmapInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: configmapWatcher.createDashboards,
+		AddFunc: configmapWatcher.CreateDashboards,
 	})
 
 	configmapWatcher.kclient = kclient
@@ -70,17 +70,28 @@ func NewConfigMapController(kclient *kubernetes.Clientset, g *grafana.Dashboards
 	return configmapWatcher
 }
 
-func (c *ConfigMapController) createDashboards(obj interface{}) {
+func (c *ConfigMapController) CreateDashboards(obj interface{}) {
 	configmapObj := obj.(*v1.ConfigMap)
-	isGrafanaDashboards, _ := configmapObj.Annotations["grafana.net/dashboards"]
+	dh, _ := configmapObj.Annotations["grafana.net/dashboards"]
+	ds, _ := configmapObj.Annotations["grafana.net/datasource"]
+	isGrafanaDashboards, _ := strconv.ParseBool(dh)
+	isGrafanaDatasource, _ := strconv.ParseBool(ds)
 
-	if b, err := strconv.ParseBool(isGrafanaDashboards); err == nil && b == true {
+	if isGrafanaDashboards || isGrafanaDatasource {
+		var err error
 		for k, v := range configmapObj.Data {
-			err := c.g.Create(strings.NewReader(v))
-			if err != nil {
-				log.Println(fmt.Sprintf("Failed to create dashboards; %s", err.Error()))
+			if isGrafanaDatasource {
+				log.Println(fmt.Sprintf("Creating datasource : %s;", k))
+				err = c.g.CreateDatasource(strings.NewReader(v))
 			} else {
-				log.Println(fmt.Sprintf("Created dashboards: %s", k))
+				log.Println(fmt.Sprintf("Creating dashboard : %s;", k))
+				err = c.g.CreateDashboard(strings.NewReader(v))
+			}
+
+			if err != nil {
+				log.Println(fmt.Sprintf("Failed to create %s", k))
+			} else {
+				log.Println(fmt.Sprintf("Created %s", k))
 			}
 		}
 	} else {

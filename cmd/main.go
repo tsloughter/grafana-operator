@@ -6,14 +6,12 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"sync"
 	"syscall"
 
 	"github.com/tsloughter/grafana-operator/pkg/controller"
 	"github.com/tsloughter/grafana-operator/pkg/grafana"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
+	"github.com/tsloughter/grafana-operator/pkg/kubernetes"
 )
 
 var (
@@ -56,7 +54,7 @@ func main() {
 	wg := &sync.WaitGroup{} // Goroutines can add themselves to this to be waited on so that they finish
 
 	// Create clientset for interacting with the kubernetes cluster
-	clientset, err := newClientSet(*runOutsideCluster)
+	clientset, err := kubernetes.NewClientSet(*runOutsideCluster)
 
 	if err != nil {
 		panic(err.Error())
@@ -69,22 +67,4 @@ func main() {
 
 	close(stop) // Tell goroutines to stop themselves
 	wg.Wait()   // Wait for all to be stopped
-}
-
-func newClientSet(runOutsideCluster bool) (*kubernetes.Clientset, error) {
-	kubeConfigLocation := ""
-
-	if runOutsideCluster == true {
-		homeDir := os.Getenv("HOME")
-		kubeConfigLocation = filepath.Join(homeDir, ".kube", "config")
-	}
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", kubeConfigLocation)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return kubernetes.NewForConfig(config)
 }

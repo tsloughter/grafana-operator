@@ -6,6 +6,8 @@ This Operator is based on the `grafana-watcher` sidecar from [Prometheus Operato
 
 Currently it simply watches for new `ConfigMaps` and if they define the annotation `grafana.net/dashboards` as `"true"` it will `POST` each dashboard from the `ConfigMap` to Grafana.
 
+Additionally, if the `ConfigMaps` define the annotation `grafana.net/datasource` as `"true"` it will `POST` each daatsource from the `ConfigMap` to Grafana. This requires Grafana 5.x.
+
 ## Usage
 ```
 --run-outside-cluster # Uses ~/.kube/config rather than in cluster configuration
