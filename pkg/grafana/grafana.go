@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 )
@@ -96,6 +97,10 @@ func doPost(url string, dataJSON io.Reader, c *http.Client) error {
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
+
+	if os.Getenv("GRAFANA_BEARER_TOKEN") != "" {
+		req.Header.Add("Authorization", "Bearer " + os.Getenv("GRAFANA_BEARER_TOKEN"))
+	}
 
 	return doRequest(c, req)
 }
