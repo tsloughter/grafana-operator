@@ -1,0 +1,21 @@
+{{- if .Values.rbacEnable }}
+{{- if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1beta1" }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+{{- else if .Capabilities.APIVersions.Has "rbac.authorization.k8s.io/v1alpha1" }}
+apiVersion: rbac.authorization.k8s.io/v1alpha1
+{{- end }}
+kind: ClusterRole
+metadata:
+  labels:
+    app: {{ template "grafana-exporter.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    heritage: {{ .Release.Service }}
+    operator: {{ template "grafana-exporter.name" . }}
+    release: {{ .Release.Name }}
+  name: {{ template "grafana-exporter.fullname" . }}
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get", "watch", "list"]
+{{- end }}

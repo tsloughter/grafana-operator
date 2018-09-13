@@ -1,48 +1,61 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
+  name: {{ template "grafana-exporter.fullname" . }}
   labels:
-    k8s-app: grafana-operator
-    operator: grafana
-  name: grafana-operator
+    app: {{ template "grafana-exporter.name" . }}
+    chart: {{ template "grafana-exporter.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    operator: {{ template "grafana-exporter.name" . }}
 spec:
-  replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "grafana-exporter.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        k8s-app: grafana-operator
-        operator: grafana
+        app: {{ template "grafana-exporter.name" . }}
+        release: {{ .Release.Name }}
+        operator: {{ template "grafana-exporter.name" . }}
     spec:
       containers:
-      - name: grafana-operator
-        image: {{ .Values.grafana.watcher.image }}
-        imagePullPolicy: IfNotPresent
-        args:
-        - "-grafana-url={{ .Values.grafana.url }}"
-        ports:
-        - containerPort: {{ .Values.grafana.watcher.containerPort }}
-          name: http
-          protocol: TCP
-        env:
-        - name: GRAFANA_USER
-          valueFrom:
-            secretKeyRef:
-              name: grafana-auth
-              key: username
-        - name: GRAFANA_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: grafana-auth
-              key: password
-        resources:
-{{ toYaml .Values.grafana.watcher.resources | indent 11 }}  
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      {{- if .Values.grafana.watcher.serviceAccount }}
-      serviceAccountName: {{ .Values.grafana.watcher.serviceAccount }}
-      {{- end }}
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "-grafana-url={{ required ".Values.url is required" .Values.url }}"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+          - name: GRAFANA_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "grafana-exporter.fullname" . }}
+                key: username
+          - name: GRAFANA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "grafana-exporter.fullname" . }}
+                key: password
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- if .Values.rbacEnable }}
+      serviceAccountName: {{ template "grafana-exporter.fullname" . }}
+    {{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
